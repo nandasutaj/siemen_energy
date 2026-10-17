@@ -1,0 +1,13 @@
+# Virtual environments
+.venv/
+.venv39/
+__pycache__/
+
+# System & temporary files
+.DS_Store
+*.pyc
+
+# Raw archives and zip bundles (website has all necessary files in assets/)
+electricity.txt.gz
+siemens_energy_website.zip
+extracted_images/

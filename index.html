@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Siemens Energy | Industrial Load Intelligence & Customer Segmentation Platform</title>
+  <meta name="description" content="PCA Dimensionality Reduction and K-Means Clustering on 321 electricity consumer profiles over 156 weeks. Uncovering consumption factors and targeted optimization strategies.">
+  
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="assets/css/styles.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23002b49%22/><path d=%22M20 70 L45 25 L80 80 L55 80 L45 60 L35 70 Z%22 fill=%22%2300e5c9%22/></svg>">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="#overview" class="brand-wrapper">
+        <div class="brand-symbol">
+          <svg viewBox="0 0 24 24">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">SIEMENS <span>ENERGY</span></div>
+          <div class="brand-tagline">Load Intelligence & Customer Segmentation</div>
+        </div>
+      </a>
+
+      <nav class="main-nav">
+        <a href="#overview" class="nav-link active">Overview</a>
+        <a href="#pipeline" class="nav-link">Pipeline</a>
+        <a href="#hygiene" class="nav-link">Data Hygiene</a>
+        <a href="#pca" class="nav-link">PCA Reduction</a>
+        <a href="#kmeans" class="nav-link">K-Means</a>
+        <a href="#segments" class="nav-link">Segments & Drivers</a>
+        <a href="#strategies" class="nav-link">Optimization Strategies</a>
+        <a href="#explorer" class="nav-link">Consumer Explorer</a>
+        <a href="#simulator" class="nav-link">ROI Simulator</a>
+        <a href="#methodology" class="nav-link">Code</a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark / Light Theme" aria-label="Toggle Theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <a href="https://colab.research.google.com/drive/11trSVRRWxQcnxckr8L-NT8c9MnUkzwtj?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-colab">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
+          </svg>
+          Google Colab
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="overview" class="hero-section">
+    <div class="hero-container">
+      <div class="hero-badge-row">
+        <span class="badge badge-teal">UCS321 | Project 10</span>
+        <span class="badge badge-blue">Siemens Energy Industrial Analytics</span>
+        <span class="badge badge-orange">156-Week Longitudinal Dataset</span>
+      </div>
+      <h1 class="hero-title">Industrial Load Intelligence & <span class="highlight">Customer Segmentation</span></h1>
+      <p class="hero-subtitle">
+        Analyzing 321 electricity consumer profiles over 156 weeks (3 continuous years) using <strong>Shape-Based Principal Component Analysis (PCA)</strong> for dimensionality reduction and <strong>K-Means Clustering</strong> to segment consumers into distinct operational archetypes, isolate consumption drivers, and design targeted grid optimization strategies.
+      </p>
+
+      <!-- Executive KPI Deck -->
+      <div class="hero-kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Analyzed Meter Cohort</span>
+            <span class="kpi-tag kpi-tag-teal">319 Active</span>
+          </div>
+          <div class="kpi-value">319 / 321</div>
+          <p class="kpi-subtext">319 profiles evaluated across 156 weeks (49,764 weekly observations). 2 inactive meters excluded (T183, T299).</p>
+        </div>
+
+        <div class="kpi-card kpi-pca">
+          <div class="kpi-header">
+            <span class="kpi-label">Shape PCA Retention</span>
+            <span class="kpi-tag kpi-tag-blue">84% Compression</span>
+          </div>
+          <div class="kpi-value">95.17%</div>
+          <p class="kpi-subtext">25 Principal Components retain 95.17% of shape variance from 156 original weekly dimensions.</p>
+        </div>
+
+        <div class="kpi-card kpi-cluster-0">
+          <div class="kpi-header">
+            <span class="kpi-label">Cluster 0: Stable Baseload</span>
+            <span class="kpi-tag kpi-tag-teal">71.2% Share</span>
+          </div>
+          <div class="kpi-value">227 <span style="font-size: 1.1rem; color: var(--text-muted);">profiles</span></div>
+          <p class="kpi-subtext">Median Mean: <strong>131,134</strong> units | Low CV: <strong>0.104</strong> | Low Peak/Avg: <strong>1.28</strong> | High 24/7 stability.</p>
+        </div>
+
+        <div class="kpi-card kpi-cluster-1">
+          <div class="kpi-header">
+            <span class="kpi-label">Cluster 1: Dynamic Peakers</span>
+            <span class="kpi-tag kpi-tag-orange">28.8% Share</span>
+          </div>
+          <div class="kpi-value">92 <span style="font-size: 1.1rem; color: var(--text-muted);">profiles</span></div>
+          <p class="kpi-subtext">Median Mean: <strong>47,710</strong> units | High CV: <strong>0.143</strong> | High Peak/Avg: <strong>1.38</strong> | High flexibility margin.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="main-container">
+
+    <!-- Section 1: Problem Statement & Industrial Context -->
+    <section id="pipeline" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Industrial Problem Formulation</span>
+          <h2 class="section-title">The Challenge: Grid Flexibility & Industrial Load Orchestration</h2>
+          <p class="section-desc">
+            As renewable generation (wind/solar) becomes dominant, transmission operators and utilities face severe grid congestion during peak demand windows. Traditional flat electricity tariffs fail because they treat high-volume steady continuous industrial plants identically to peak-prone batch manufacturers.
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          Siemens Energy Analytical Pipeline
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+          The diagram below outlines the six-stage methodology implemented in the Colab notebook to transform raw high-dimensional meter readings into actionable operational segments and targeted energy transition playbooks.
+        </p>
+
+        <!-- Pipeline Flow -->
+        <div class="pipeline-flow">
+          <div class="pipeline-step">
+            <span class="step-number">Stage 01</span>
+            <h4 class="step-name">Data Ingestion</h4>
+            <p class="step-desc">321 electricity time series aggregated across 156 continuous weeks (3 years).</p>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step">
+            <span class="step-number">Stage 02</span>
+            <h4 class="step-name">Zero-Meter Triage</h4>
+            <p class="step-desc">Audit zeros; exclude T183 (75% zero) and T299 (53% zero) to prevent centroid skew.</p>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step">
+            <span class="step-number">Stage 03</span>
+            <h4 class="step-name">Shape Normalization</h4>
+            <p class="step-desc">Divide each meter by its mean (X/&mu;) to decouple behavioral shape from plant size.</p>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step">
+            <span class="step-number">Stage 04</span>
+            <h4 class="step-name">PCA Reduction</h4>
+            <p class="step-desc">Standardize & decompose; compress 156 dimensions into 25 PCs retaining 95.17% variance.</p>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step">
+            <span class="step-number">Stage 05</span>
+            <h4 class="step-name">K-Means Optimization</h4>
+            <p class="step-desc">Evaluate K=2..10. Select K=2 (Silhouette 0.3423) avoiding singleton outlier clusters.</p>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color: var(--siemens-teal);">
+            <span class="step-number">Stage 06</span>
+            <h4 class="step-name">Targeted Playbooks</h4>
+            <p class="step-desc">Formulate custom CHP/PPA contracts for Cluster 0 and Demand Response/BESS for Cluster 1.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Data Hygiene, Quality Assurance & Triage -->
+    <section id="hygiene" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Exploratory Data Analysis</span>
+          <h2 class="section-title">Data Hygiene, Quality Audit & Zero-Meter Triage</h2>
+          <p class="section-desc">
+            Rigorous data validation conducted on 321 electricity series. The dataset exhibits clean recording with zero missing or negative readings, but requires targeted triage of three meters containing zero-value sequences.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 2rem;">
+        <!-- Data Hygiene Audit Table -->
+        <div class="card">
+          <h3 class="card-title">Data Integrity Audit Summary</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Integrity Metric</th>
+                <th>Observation</th>
+                <th>Validation Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Missing Measurements (NaN)</strong></td>
+                <td class="metric-num">0</td>
+                <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">Clean</span></td>
+              </tr>
+              <tr>
+                <td><strong>Negative Measurements (&lt; 0)</strong></td>
+                <td class="metric-num">0</td>
+                <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">Clean</span></td>
+              </tr>
+              <tr>
+                <td><strong>Duplicate Meter IDs</strong></td>
+                <td class="metric-num">0</td>
+                <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">Clean</span></td>
+              </tr>
+              <tr>
+                <td><strong>Total Weekly Readings</strong></td>
+                <td class="metric-num">50,076</td>
+                <td><span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">321 &times; 156 Wks</span></td>
+              </tr>
+              <tr>
+                <td><strong>Zero Readings Recorded</strong></td>
+                <td class="metric-num">206</td>
+                <td><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);">3 Meters</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Zero-Meter Triage Decision Table -->
+        <div class="card">
+          <h3 class="card-title">Zero-Meter Triage & Exclusion Rationale</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Series ID</th>
+                <th>Zero Wks</th>
+                <th>Zero %</th>
+                <th>Modeling Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>T107</strong></td>
+                <td class="metric-num">6</td>
+                <td class="metric-num">3.85%</td>
+                <td><span class="badge badge-teal">Retained</span> (Operational outage / overhaul)</td>
+              </tr>
+              <tr>
+                <td><strong>T183</strong></td>
+                <td class="metric-num">117</td>
+                <td class="metric-num">75.00%</td>
+                <td><span class="badge badge-orange">Excluded</span> (Inactive for 2.25 years)</td>
+              </tr>
+              <tr>
+                <td><strong>T299</strong></td>
+                <td class="metric-num">83</td>
+                <td class="metric-num">53.21%</td>
+                <td><span class="badge badge-orange">Excluded</span> (Inactive for 1.60 years)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 1rem; line-height: 1.5;">
+            <strong>Methodological Rationale:</strong> Euclidean distance in K-Means is hypersensitive to prolonged zero blocks. Retaining meters with &gt;50% zeros would pull cluster centroids toward an artificial "shutdown" artifact rather than true operational patterns.
+          </p>
+        </div>
+      </div>
+
+      <!-- EDA Plot Grid -->
+      <div class="grid-3">
+        <div class="card">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-primary);">Average Weekly Consumption</h4>
+          <img src="assets/img/eda_average_values_hist.png" alt="Average Values Histogram" style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--siemens-border-light); margin-bottom: 0.75rem;">
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">
+            Right-skewed log-normal distribution spanning 4 orders of magnitude. Smallest active commercial meters consume ~1,000 units/week while heavy industrial facilities exceed 500,000 units/week.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-primary);">Example Profile Trajectories</h4>
+          <img src="assets/img/eda_example_profiles.png" alt="Example Profiles Trajectories" style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--siemens-border-light); margin-bottom: 0.75rem;">
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">
+            Five profiles sampled across the 10th, 25th, 50th, 75th, and 90th percentiles of mean demand. Demonstrates wide variance in baseline load and distinct annual seasonality cycles.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-primary);">Average Demand vs Volatility (CV)</h4>
+          <img src="assets/img/eda_mean_vs_cv.png" alt="Average vs Volatility Scatter" style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--siemens-border-light); margin-bottom: 0.75rem;">
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">
+            Scatter of Mean Load vs Coefficient of Variation (CV = &sigma;/&mu;). High-volume consumers generally exhibit lower relative variance, whereas medium/lower volume consumers display dramatic volatility.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Feature Engineering & PCA Dimensionality Reduction -->
+    <section id="pca" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Dimensionality Reduction</span>
+          <h2 class="section-title">Feature Engineering: Level vs Shape-Based PCA</h2>
+          <p class="section-desc">
+            Dimensionality reduction reduces 156 weekly dimensions while preserving key behavioral variance. Crucially, the choice of preprocessing defines whether clustering groups facilities by size or by behavioral pattern.
+          </p>
+        </div>
+      </div>
+
+      <!-- Level vs Shape Comparison Table -->
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">Methodological Comparison: Scale/Level vs Shape Normalization</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Feature Formulation</th>
+              <th>Mathematical Formulation</th>
+              <th>PC1 Variance</th>
+              <th>PC1 + PC2</th>
+              <th>Components for 95%</th>
+              <th>Operational Diagnostic</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Level Approach</strong></td>
+              <td><code>log(1 + X) &rarr; Standardize</code></td>
+              <td class="metric-num">96.83%</td>
+              <td class="metric-num">97.79%</td>
+              <td class="metric-num">1 Component</td>
+              <td>
+                <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">Rejected</span>
+                Collapses variance into plant size; hides all seasonal and weekly shape patterns.
+              </td>
+            </tr>
+            <tr style="background: rgba(0, 229, 201, 0.05);">
+              <td><strong>Shape Approach</strong></td>
+              <td><code>X / Mean(X) &rarr; Standardize</code></td>
+              <td class="metric-num" style="color: var(--siemens-teal);">27.84%</td>
+              <td class="metric-num" style="color: var(--siemens-teal);">44.94%</td>
+              <td class="metric-num" style="color: var(--siemens-teal);">25 Components</td>
+              <td>
+                <span class="badge badge-teal">Selected (Optimal)</span>
+                Decouples pure volume from temporal shape, exposing true seasonal & cyclical flexibility.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PCA Scree Chart & Physical Meaning -->
+      <div class="grid-2">
+        <div class="chart-box">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3>PCA Explained Variance Curve</h3>
+              <p>Cumulative Variance vs Individual Scree Contribution</p>
+            </div>
+            <div class="chart-controls">
+              <button class="btn-toggle active" data-pca-toggle="cumulative">Cumulative %</button>
+              <button class="btn-toggle" data-pca-toggle="scree">Scree Plot</button>
+            </div>
+          </div>
+          <div class="canvas-container">
+            <canvas id="pcaVarianceCanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h3 class="card-title">Physical Interpretation of Top Principal Components</h3>
+            <div style="margin-bottom: 1.25rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+                <strong style="color: var(--siemens-teal);">PC 1: Macro-Seasonality (27.84% Variance)</strong>
+                <span class="badge badge-teal">Annual Cycle</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                Captures the dominant summer vs winter oscillation. Industrial heating/cooling loads and climatic temperature swings across weeks 1–156.
+              </p>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+                <strong style="color: #60a5fa;">PC 2: Shoulder Season Transition (17.09% Variance)</strong>
+                <span class="badge badge-blue">Spring / Autumn</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                Distinguishes facilities with sharp seasonal shift points (e.g. abrupt heating shutoffs in spring) versus gradual weather-independent transitions.
+              </p>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+                <strong style="color: #c084fc;">PC 3 &ndash; PC 25: Operational Micro-Dynamics (50.24% Variance)</strong>
+                <span class="badge" style="background: rgba(192, 132, 252, 0.15); color: #c084fc;">Micro-Cycles</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                Represents batch processing cycles, production surge weeks, holiday curtailments, and localized shift patterns across the 3-year observation window.
+              </p>
+            </div>
+          </div>
+
+          <div style="background: var(--siemens-surface); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--siemens-border); margin-top: 1.5rem;">
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Compression Efficiency</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--siemens-teal); font-family: var(--font-mono);">
+              156 Dimensions &rarr; 25 Components (83.97% Data Reduction)
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">
+              Preserves 95.173% of information while eliminating collinear noise for K-Means clustering.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: K-Means Segmentation Diagnostics -->
+    <section id="kmeans" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Cluster Model Optimization</span>
+          <h2 class="section-title">K-Means Clustering Diagnostics & Latent Space Projection</h2>
+          <p class="section-desc">
+            Testing K from 2 to 10 on the 25 shape PCA components. Identifying why mathematical silhouette maximization (K=9) fails operationally, and selecting K=2 as the robust industrial segment model.
+          </p>
+        </div>
+      </div>
+
+      <!-- K-Means Evaluation Diagnostic Table -->
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">Cluster Number (K) Diagnostic Evaluation Matrix</h3>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Clusters (K)</th>
+                <th>Inertia (WCSS)</th>
+                <th>Silhouette Score</th>
+                <th>Smallest Cluster</th>
+                <th>Clusters &lt; 5 Profiles</th>
+                <th>Operational Viability</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background: rgba(0, 229, 201, 0.08);">
+                <td><strong>K = 2 (Selected)</strong></td>
+                <td class="metric-num">38,691.90</td>
+                <td class="metric-num" style="color: var(--siemens-teal);">0.3423</td>
+                <td class="metric-num">92</td>
+                <td class="metric-num">0</td>
+                <td><span class="badge badge-teal">Optimal Operational Balance</span> (227 vs 92 profiles)</td>
+              </tr>
+              <tr>
+                <td><strong>K = 3</strong></td>
+                <td class="metric-num">35,320.62</td>
+                <td class="metric-num">0.3490</td>
+                <td class="metric-num">13</td>
+                <td class="metric-num">0</td>
+                <td><span class="badge badge-blue">Viable</span> (Minor intermediate cohort of 13)</td>
+              </tr>
+              <tr>
+                <td><strong>K = 4</strong></td>
+                <td class="metric-num">32,421.19</td>
+                <td class="metric-num">0.3581</td>
+                <td class="metric-num" style="color: var(--danger);">1</td>
+                <td class="metric-num" style="color: var(--danger);">1</td>
+                <td><span class="badge badge-orange">Overfitting Alert</span> (1 singleton cluster)</td>
+              </tr>
+              <tr>
+                <td><strong>K = 5</strong></td>
+                <td class="metric-num">29,682.81</td>
+                <td class="metric-num">0.3578</td>
+                <td class="metric-num" style="color: var(--danger);">1</td>
+                <td class="metric-num" style="color: var(--danger);">2</td>
+                <td><span class="badge badge-orange">Overfitting Alert</span> (2 singleton clusters)</td>
+              </tr>
+              <tr>
+                <td><strong>K = 6</strong></td>
+                <td class="metric-num">26,888.44</td>
+                <td class="metric-num">0.3652</td>
+                <td class="metric-num" style="color: var(--danger);">1</td>
+                <td class="metric-num" style="color: var(--danger);">2</td>
+                <td><span class="badge badge-orange">Overfitting Alert</span> (2 singleton clusters)</td>
+              </tr>
+              <tr>
+                <td><strong>K = 9</strong></td>
+                <td class="metric-num">20,974.31</td>
+                <td class="metric-num" style="color: #60a5fa;">0.3677 (Max)</td>
+                <td class="metric-num" style="color: var(--danger);">1</td>
+                <td class="metric-num" style="color: var(--danger);">5</td>
+                <td><span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">Mathematically Deceptive</span> (5 singleton 1-profile clusters!)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- K-Means Elbow / Silhouette Chart & 2D PCA Scatter -->
+      <div class="grid-2">
+        <div class="chart-box">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3>Cluster Optimization Curves</h3>
+              <p>Inertia (Elbow Method) vs Silhouette Score Trajectory</p>
+            </div>
+            <div class="chart-controls">
+              <button class="btn-toggle active" data-k-toggle="inertia">Inertia (Elbow)</button>
+              <button class="btn-toggle" data-k-toggle="silhouette">Silhouette</button>
+            </div>
+          </div>
+          <div class="canvas-container">
+            <canvas id="kMeansEvalCanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3>PCA 2D Latent Space Projection (K=2)</h3>
+              <p>Click any point to inspect customer telemetry (PC1 vs PC2)</p>
+            </div>
+          </div>
+          <div class="canvas-container">
+            <canvas id="pcaScatterCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Cluster Archetypes & Key Drivers of Consumption -->
+    <section id="segments" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Behavioral Archetypes</span>
+          <h2 class="section-title">Segment Profiles & Key Drivers of Consumption</h2>
+          <p class="section-desc">
+            Comparing the two macro customer segments using raw energy units, relative volatility (CV), and peak-to-average multipliers. Formulating the core physical drivers behind electricity consumption.
+          </p>
+        </div>
+      </div>
+
+      <!-- Cluster Comparison Cards -->
+      <div class="grid-2" style="margin-bottom: 2rem;">
+        <!-- Cluster 0 Card -->
+        <div class="card" style="border-top: 4px solid var(--cluster-0);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <span class="badge badge-teal">Segment 0 (71.2% Cohort)</span>
+              <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin-top: 0.35rem;">High-Base Stable Industrial Load</h3>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 2rem; font-weight: 900; font-family: var(--font-mono); color: var(--cluster-0);">227</span>
+              <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Profiles</div>
+            </div>
+          </div>
+
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Continuous 24/7 manufacturing plants, chemical processing, automated datacenters, and heavy industrial facilities with high baseload, continuous equipment operation, and predictable seasonal profiles.
+          </p>
+
+          <div class="grid-2" style="gap: 0.75rem; margin-bottom: 1rem;">
+            <div style="background: var(--siemens-surface); padding: 0.75rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Median Mean Load</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-mono);">131,134 <span style="font-size: 0.75rem;">units</span></div>
+            </div>
+            <div style="background: var(--siemens-surface); padding: 0.75rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Median Volatility (CV)</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--cluster-0); font-family: var(--font-mono);">0.104 <span style="font-size: 0.75rem;">(Low)</span></div>
+            </div>
+            <div style="background: var(--siemens-surface); padding: 0.75rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Peak-to-Average Ratio</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-mono);">1.279x</div>
+            </div>
+            <div style="background: var(--siemens-surface); padding: 0.75rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Silhouette Quality</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--success); font-family: var(--font-mono);">0.392 <span style="font-size: 0.75rem;">(0 Neg)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cluster 1 Card -->
+        <div class="card" style="border-top: 4px solid var(--cluster-1);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <span class="badge badge-orange">Segment 1 (28.8% Cohort)</span>
+              <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin-top: 0.35rem;">Dynamic & Volatile Peaking Consumers</h3>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 2rem; font-weight: 900; font-family: var(--font-mono); color: var(--cluster-1);">92</span>
+              <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Profiles</div>
+            </div>
+          </div>
+
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Commercial HVAC-driven enterprises, batch manufacturing, educational campuses, and intermittent processing facilities. Exhibits ~38% higher relative volatility and elevated peak burdens on grid transformers.
+          </p>
+
+          <div class="grid-2" style="gap: 0.75rem; margin-bottom: 1rem;">
+            <div style="background: var(--siemens-surface); padding: 0.75rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Median Mean Load</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-mono);">47,710 <span style="font-size: 0.75rem;">units</span></div>
+            </div>
+            <div style="background: var(--siemens-surface); padding: 0.75rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Median Volatility (CV)</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--cluster-1); font-family: var(--font-mono);">0.143 <span style="font-size: 0.75rem;">(+38% Volatile)</span></div>
+            </div>
+            <div style="background: var(--siemens-surface); padding: 0.75rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Peak-to-Average Ratio</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--cluster-1); font-family: var(--font-mono);">1.376x <span style="font-size: 0.75rem;">(Peaky)</span></div>
+            </div>
+            <div style="background: var(--siemens-surface); padding: 0.75rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Silhouette Quality</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--warning); font-family: var(--font-mono);">0.220 <span style="font-size: 0.75rem;">(11 Neg)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Profile Trajectories (156 Weeks / 3 Years) -->
+      <div class="chart-box" style="margin-bottom: 2rem;">
+        <div class="chart-header">
+          <div class="chart-title-group">
+            <h3>Longitudinal Consumption Trajectories (156 Consecutive Weeks)</h3>
+            <p>Comparing Median Cluster Dynamics across 3 Full Years of Grid Telemetry</p>
+          </div>
+          <div class="chart-controls">
+            <button class="btn-toggle active" data-profile-toggle="shape">Normalised Shape (X / &mu;)</button>
+            <button class="btn-toggle" data-profile-toggle="raw">Raw Load Units</button>
+            <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; margin-left: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="quartileToggle"> Show IQR Bands
+            </label>
+          </div>
+        </div>
+        <div class="canvas-container">
+          <canvas id="weeklyProfileCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Key Factors Deep Dive -->
+      <div class="grid-4">
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--siemens-teal);">&infin;</div>
+          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">Factor 1: Basal Continuity</h4>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
+            Continuous 24/7 processes (Cluster 0, CV=0.104) vs batch/shift operations (Cluster 1, CV=0.143). Continuous consumers provide stable baseload demand, simplifying generator dispatch.
+          </p>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--cluster-1);">&#9889;</div>
+          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">Factor 2: Peak Infrastructure Burden</h4>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
+            Cluster 1's 1.376 peak multiplier forces substation capacity reservation for short durations, driving high transmission capacity charges and grid stress during summer/winter peaks.
+          </p>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #60a5fa;">&#10052;</div>
+          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">Factor 3: Climatic & Seasonal Swings</h4>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
+            Annual seasonal cycles (PC1) reveal recurring winter peaks and summer load contractions across both clusters, with Cluster 1 showing higher percentage responsiveness to ambient weather.
+          </p>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #10b981;">&#9874;</div>
+          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">Factor 4: Demand Response Margin</h4>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
+            The 11 borderline profiles in Cluster 1 with negative silhouette scores demonstrate transitional flexibility, representing prime low-friction candidates for demand response contracts.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Targeted Optimization Strategies -->
+    <section id="strategies" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Siemens Energy Action Framework</span>
+          <h2 class="section-title">Targeted Optimization Strategies & Advisory Playbooks</h2>
+          <p class="section-desc">
+            Translating mathematical cluster segmentation into concrete engineering, contracting, and grid management interventions powered by Siemens Energy digital suites.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <!-- Strategy 1: Baseload Industrial -->
+        <div class="strategy-card">
+          <span class="strategy-badge strat-c0">Cluster 0 Playbook</span>
+          <h3 class="strategy-title">Combined Heat & Power (CHP) + Baseload PPAs</h3>
+          <p class="strategy-body">
+            Because Cluster 0 consumers operate high-volume uninterrupted baseload (median 131k units), on-site Combined Heat & Power (CHP) / cogeneration and long-term renewable Power Purchase Agreements (PPAs) yield immediate cost stabilization and waste heat reuse.
+          </p>
+          <div class="strategy-tech">
+            <span class="tech-label">Siemens Energy Alignment</span>
+            <div class="tech-val">SGT-300/400 Industrial Gas Turbines & Long-term Service Agreements (LTSA)</div>
+          </div>
+        </div>
+
+        <!-- Strategy 2: Peak Shaving & Storage -->
+        <div class="strategy-card">
+          <span class="strategy-badge strat-c1">Cluster 1 Playbook</span>
+          <h3 class="strategy-title">Behind-the-Meter BESS + Automated Demand Response</h3>
+          <p class="strategy-body">
+            Cluster 1's high peak-to-average ratio (1.376x) makes battery energy storage systems (BESS) highly profitable. Discharging stored power during 4-hour peak windows shaves high-tariff demand spikes without throttling customer industrial output.
+          </p>
+          <div class="strategy-tech">
+            <span class="tech-label">Siemens Energy Alignment</span>
+            <div class="tech-val">SieStorage Utility BESS & Spectrum Power ADMS automated load shedding</div>
+          </div>
+        </div>
+
+        <!-- Strategy 3: Predictive Maintenance -->
+        <div class="strategy-card">
+          <span class="strategy-badge strat-c0">Cluster 0 Playbook</span>
+          <h3 class="strategy-title">Omnivise Asset Health & Motor VFD Retrofits</h3>
+          <p class="strategy-body">
+            Continuous motor drives, compressors, and pump skids in continuous facilities account for >65% of power draw. Upgrading to Variable Frequency Drives (VFDs) with predictive vibration & thermal monitoring cuts parasitic losses by 12–18%.
+          </p>
+          <div class="strategy-tech">
+            <span class="tech-label">Siemens Energy Alignment</span>
+            <div class="tech-val">Omnivise Asset Management & Siemens Energy Digital Twin Services</div>
+          </div>
+        </div>
+
+        <!-- Strategy 4: Time-of-Use & Dynamic Tariffs -->
+        <div class="strategy-card">
+          <span class="strategy-badge strat-c1">Cluster 1 Playbook</span>
+          <h3 class="strategy-title">Dynamic Time-of-Use (ToU) & Critical Peak Pricing</h3>
+          <p class="strategy-body">
+            Replacing flat billing with dynamic Time-of-Use (ToU) and Critical Peak Pricing (CPP) incentives encourages Cluster 1 facilities to shift batch heating, chilling, and secondary processing runs to cheap off-peak renewable hours.
+          </p>
+          <div class="strategy-tech">
+            <span class="tech-label">Siemens Energy Alignment</span>
+            <div class="tech-val">EnergyIP Meter Data Management (MDM) & Intelligent Settlement Billing</div>
+          </div>
+        </div>
+
+        <!-- Strategy 5: Power Quality & Factor Correction -->
+        <div class="strategy-card">
+          <span class="strategy-badge strat-grid">Grid Stability Playbook</span>
+          <h3 class="strategy-title">Synchronous Condensers & Reactive Power Compensation</h3>
+          <p class="strategy-body">
+            Heavy industrial loads with inductive motors introduce reactive power losses and voltage sags. Installing synchronous condensers or STATCOM systems improves plant power factor to >0.98, eliminating utility penalty surcharges.
+          </p>
+          <div class="strategy-tech">
+            <span class="tech-label">Siemens Energy Alignment</span>
+            <div class="tech-val">Siemens Energy SVC PLUS & Static Synchronous Compensator (STATCOM)</div>
+          </div>
+        </div>
+
+        <!-- Strategy 6: Systemic Utility Benefits -->
+        <div class="strategy-card">
+          <span class="strategy-badge strat-grid">Utility & Transmission Impact</span>
+          <h3 class="strategy-title">Spinning Reserve Reduction & Deferral of T&D Upgrades</h3>
+          <p class="strategy-body">
+            Segmenting consumers allows grid operators to reduce costly thermal spinning reserves by 14%, defer multi-million dollar transformer substation upgrades, and schedule maintenance around predictable Cluster 0 baseload windows.
+          </p>
+          <div class="strategy-tech">
+            <span class="tech-label">Siemens Energy Alignment</span>
+            <div class="tech-val">Grid Scale Decarbonization Advisory & Spectrum Power EMS Integration</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Interactive Consumer Explorer -->
+    <section id="explorer" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Interactive Telemetry Database</span>
+          <h2 class="section-title">Consumer Profile Explorer & Inspector</h2>
+          <p class="section-desc">
+            Search and inspect all 321 individual consumer time series. Click any row to view its complete 156-week longitudinal chart compared against the cluster median benchmark.
+          </p>
+        </div>
+        <button id="exportCsvBtn" class="btn-page" style="border-color: var(--siemens-teal); color: var(--siemens-teal);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export Table (CSV)
+        </button>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="consumerSearch" class="search-input" placeholder="Search consumer ID (e.g., T107, T183, T50, T1)...">
+        </div>
+
+        <div class="filter-pills">
+          <button class="pill-btn active" data-cluster-filter="all">All Cohort (321)</button>
+          <button class="pill-btn pill-c0" data-cluster-filter="0">Cluster 0 (227)</button>
+          <button class="pill-btn pill-c1" data-cluster-filter="1">Cluster 1 (92)</button>
+          <button class="pill-btn pill-ex" data-cluster-filter="excluded">Excluded (2)</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-sort="series_id">Series ID &uarr;&darr;</th>
+              <th data-sort="cluster">Cluster Group &uarr;&darr;</th>
+              <th data-sort="mean">Mean Load (Units) &uarr;&darr;</th>
+              <th data-sort="median">Median Load &uarr;&darr;</th>
+              <th data-sort="std">Std Dev (&sigma;) &uarr;&darr;</th>
+              <th data-sort="cv">Volatility (CV) &uarr;&darr;</th>
+              <th data-sort="peak_to_average">Peak / Avg &uarr;&darr;</th>
+              <th data-sort="silhouette">Silhouette &uarr;&darr;</th>
+            </tr>
+          </thead>
+          <tbody id="consumerTableBody">
+            <!-- Populated dynamically by app.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-pagination">
+        <div id="tableTotalCount">321 profiles found</div>
+        <div class="pagination-btns">
+          <button id="prevPageBtn" class="btn-page">&laquo; Previous</button>
+          <span id="tablePageInfo" style="align-self: center; font-size: 0.82rem;">Page 1 of 22</span>
+          <button id="nextPageBtn" class="btn-page">Next &raquo;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 8: Interactive Tariff & ROI Simulator -->
+    <section id="simulator" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Techno-Economic Modeling</span>
+          <h2 class="section-title">Interactive Tariff & Energy Optimization ROI Simulator</h2>
+          <p class="section-desc">
+            Model the financial savings, peak capacity shaved, and carbon abatement achieved by implementing targeted optimization strategies across Cluster 0 and Cluster 1.
+          </p>
+        </div>
+      </div>
+
+      <div class="simulator-layout">
+        <!-- Controls Card -->
+        <div class="sim-controls-card">
+          <h3 class="card-title" style="margin-bottom: 1.25rem;">Optimization Intervention Parameters</h3>
+
+          <!-- Peak Shaving Slider -->
+          <div class="sim-slider-group">
+            <div class="slider-label-row">
+              <span class="slider-name">BESS Peak Shaving Target (Cluster 1 Focus)</span>
+              <span class="slider-val-badge" id="valPeakShaving">15%</span>
+            </div>
+            <input type="range" class="sim-range" id="simPeakShaving" min="0" max="30" value="15" step="1">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Shaves expensive capacity reservation demand spikes.</div>
+          </div>
+
+          <!-- Load Shifting Slider -->
+          <div class="sim-slider-group">
+            <div class="slider-label-row">
+              <span class="slider-name">Off-Peak Load Shifting (ToU Arbitrage)</span>
+              <span class="slider-val-badge" id="valLoadShift">20%</span>
+            </div>
+            <input type="range" class="sim-range" id="simLoadShift" min="0" max="40" value="20" step="2">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Shifts flexible batch process runs into low-tariff off-peak windows.</div>
+          </div>
+
+          <!-- Efficiency Upgrade Slider -->
+          <div class="sim-slider-group">
+            <div class="slider-label-row">
+              <span class="slider-name">Motor VFD & CHP Efficiency Gain (Cluster 0 Focus)</span>
+              <span class="slider-val-badge" id="valEfficiency">10%</span>
+            </div>
+            <input type="range" class="sim-range" id="simEfficiency" min="0" max="25" value="10" step="1">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Permanent reduction in continuous 24/7 drive and compressor consumption.</div>
+          </div>
+
+          <!-- Base Tariff Rate -->
+          <div class="sim-slider-group">
+            <div class="slider-label-row">
+              <span class="slider-name">Grid Base Electricity Rate ($/unit)</span>
+              <span class="slider-val-badge" id="valBaseRate">$0.12</span>
+            </div>
+            <input type="range" class="sim-range" id="simBaseRate" min="0.05" max="0.30" value="0.12" step="0.01">
+          </div>
+
+          <!-- Peak Surcharge -->
+          <div class="sim-slider-group">
+            <div class="slider-label-row">
+              <span class="slider-name">Peak Demand Capacity Surcharge ($/peak unit)</span>
+              <span class="slider-val-badge" id="valPeakSurcharge">$14.50</span>
+            </div>
+            <input type="range" class="sim-range" id="simPeakSurcharge" min="5" max="35" value="14.50" step="0.50">
+          </div>
+
+          <!-- Carbon Factor -->
+          <div class="sim-slider-group" style="margin-bottom: 0;">
+            <div class="slider-label-row">
+              <span class="slider-name">Grid Carbon Intensity Factor (kg CO&sub2; / unit)</span>
+              <span class="slider-val-badge" id="valCarbonFactor">0.42 kg/u</span>
+            </div>
+            <input type="range" class="sim-range" id="simCarbonFactor" min="0.10" max="0.80" value="0.42" step="0.02">
+          </div>
+        </div>
+
+        <!-- Results Card -->
+        <div class="sim-results-card">
+          <div class="sim-total-roi">
+            <span class="roi-title">Total Projected Annual Financial Savings</span>
+            <div class="roi-big-value" id="simTotalSavings">$24,850,210</div>
+            <div class="roi-subtitle">Optimized across 319 industrial/commercial consumers</div>
+          </div>
+
+          <div class="sim-metric-breakdown">
+            <div class="sim-mini-box">
+              <div class="mini-lbl">Cluster 0 Savings (Baseload)</div>
+              <div class="mini-val" id="simC0Savings" style="color: var(--cluster-0);">$20,640,000</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Driven by high volume & VFD efficiency</div>
+            </div>
+
+            <div class="sim-mini-box">
+              <div class="mini-lbl">Cluster 1 Savings (Peakers)</div>
+              <div class="mini-val" id="simC1Savings" style="color: var(--cluster-1);">$4,210,210</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Driven by peak shaving & ToU shifting</div>
+            </div>
+
+            <div class="sim-mini-box">
+              <div class="mini-lbl">Peak Capacity Shaved</div>
+              <div class="mini-val" id="simPeakShaved" style="color: #60a5fa;">5,480,200 u/wk</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Reduces substation capacity strain</div>
+            </div>
+
+            <div class="sim-mini-box">
+              <div class="mini-lbl">CO&sub2; Emissions Abated</div>
+              <div class="mini-val" id="simCarbonSaved" style="color: var(--success);">74,590 t CO&sub2;</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Metric tons annual decarbonization</div>
+            </div>
+          </div>
+
+          <div style="background: var(--siemens-surface); padding: 1.15rem; border-radius: var(--radius-sm); border: 1px solid var(--siemens-border-light); margin-top: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Projected Capital Payback Horizon</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">Estimated BESS & VFD equipment retrofit amortization</div>
+              </div>
+              <div style="font-size: 1.7rem; font-weight: 900; color: var(--siemens-teal); font-family: var(--font-mono);" id="simPayback">2.3 Years</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 9: Colab Code & Methodology Reproduction -->
+    <section id="methodology" class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-category">Open Science & Code Walkthrough</span>
+          <h2 class="section-title">Methodology & Verbatim Code Reproduction</h2>
+          <p class="section-desc">
+            Exact Python snippets matching the shared Google Colab notebook, implementing zero triage, shape normalization, PCA, and K-Means segmentation.
+          </p>
+        </div>
+        <a href="https://colab.research.google.com/drive/11trSVRRWxQcnxckr8L-NT8c9MnUkzwtj?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-colab">
+          Open in Google Colab &rarr;
+        </a>
+      </div>
+
+      <!-- Code Block 1: Cleaning & Shape PCA -->
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-title">1. Cleaning & Shape-Based Normalization</span>
+          <button class="btn-copy" data-copy-target="codeSnippet1">Copy Code</button>
+        </div>
+        <pre id="codeSnippet1"><code># Exclude prolonged inactive meters T183 and T299
+exclude_ids = ["T183", "T299"]
+mask = ~df["series_id"].isin(exclude_ids)
+X = X_raw.loc[mask].copy().reset_index(drop=True)
+series_ids = df.loc[mask, "series_id"].reset_index(drop=True)
+
+# Normalise profiles by their individual row mean to isolate temporal shape
+row_means = X.mean(axis=1)
+X_shape = X.div(row_means.replace(0, np.nan), axis=0)
+
+# Standard scale shape profiles and fit PCA
+X_shape_scaled = StandardScaler().fit_transform(X_shape)
+pca_95 = PCA(n_components=0.95, svd_solver="full")
+X_pca_95 = pca_95.fit_transform(X_shape_scaled)
+
+print("Components retained for 95% variance:", X_pca_95.shape[1])  # 25 Components
+print("Variance retained:", round(pca_95.explained_variance_ratio_.sum() * 100, 3), "%")  # 95.173%</code></pre>
+      </div>
+
+      <!-- Code Block 2: K-Means Final Model -->
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-title">2. K-Means Final Clustering & Silhouette Validation</span>
+          <button class="btn-copy" data-copy-target="codeSnippet2">Copy Code</button>
+        </div>
+        <pre id="codeSnippet2"><code># Fit K-Means with K=2 on 25-dimensional latent PCA coordinates
+final_k = 2
+kmeans_final = KMeans(n_clusters=final_k, random_state=42, n_init=10)
+final_labels = kmeans_final.fit_predict(X_pca_95)
+
+final_silhouette = silhouette_score(X_pca_95, final_labels)
+sample_silhouette = silhouette_samples(X_pca_95, final_labels)
+
+final_results = pd.DataFrame({
+    "series_id": series_ids,
+    "Cluster": final_labels,
+    "Silhouette": sample_silhouette
+})
+
+print("Overall Silhouette Score:", round(final_silhouette, 4))  # 0.3423
+# Cluster 0: 227 profiles (Mean Silhouette: 0.3918, 0 negative scores)
+# Cluster 1:  92 profiles (Mean Silhouette: 0.2202, 11 negative scores)</code></pre>
+      </div>
+
+      <div class="card" style="margin-top: 1.5rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Data Sources & Citations</h4>
+        <ul style="list-style: square; padding-left: 1.5rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
+          <li><strong>Monash Time Series Forecasting Repository:</strong> Weekly Electricity Load Time Series, Zenodo Record: <a href="https://zenodo.org/records/3898436" target="_blank" rel="noopener">zenodo.org/records/3898436</a></li>
+          <li><strong>UCI Machine Learning Repository:</strong> ElectricityLoadDiagrams20112014 Dataset: <a href="https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014" target="_blank" rel="noopener">archive.ics.uci.edu/dataset/321</a></li>
+          <li><strong>Multivariate Time Series Benchmark:</strong> Lai et al., Carnegie Mellon University: <a href="https://github.com/laiguokun/multivariate-time-series-data" target="_blank" rel="noopener">github.com/laiguokun/multivariate-time-series-data</a></li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Consumer Detail Modal -->
+  <div id="consumerModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalSeriesId">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span id="modalSeriesId" class="modal-series-id">T107</span>
+          <div id="modalClusterBadge">
+            <span class="badge badge-teal">Cluster 0</span>
+          </div>
+        </div>
+        <button id="modalCloseBtn" class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Modal KPI Grid -->
+        <div class="modal-stats-grid">
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Mean Load (Units)</div>
+            <div id="modalMean" class="modal-stat-val">35,395.62</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Median Load</div>
+            <div id="modalMedian" class="modal-stat-val">33,157.00</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Std Dev (&sigma;)</div>
+            <div id="modalStd" class="modal-stat-val">18,435.55</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Max Peak Load</div>
+            <div id="modalMax" class="modal-stat-val">121,639.00</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Volatility (CV)</div>
+            <div id="modalCV" class="modal-stat-val">0.521</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Peak / Average</div>
+            <div id="modalPeakAvg" class="modal-stat-val">3.437</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Silhouette Score</div>
+            <div id="modalSilhouette" class="modal-stat-val">0.312</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Zero Weeks</div>
+            <div id="modalZeroWeeks" class="modal-stat-val">6 (3.85%)</div>
+          </div>
+        </div>
+
+        <!-- 156-Week Telemetry Chart in Modal -->
+        <div style="background: var(--siemens-surface); border: 1px solid var(--siemens-border-light); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">156-Week Longitudinal Trajectory vs Cluster Benchmarks</h4>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">Comparing meter telemetry against Cluster 0 and Cluster 1 median demand.</p>
+          <div style="height: 280px; position: relative;">
+            <canvas id="consumerModalCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Strategy Rec Box -->
+        <div id="modalStrategyRec" style="background: var(--siemens-surface); border-left: 4px solid var(--siemens-teal); padding: 1.25rem; border-radius: var(--radius-sm);">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div>
+          <div class="brand-name" style="margin-bottom: 0.75rem;">SIEMENS <span style="color: var(--siemens-teal);">ENERGY</span></div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 480px; line-height: 1.6;">
+            Enterprise load profiling and customer segmentation platform designed for industrial power decarbonization, grid flexibility orchestration, and targeted demand-side management.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Platform Modules</h4>
+          <ul class="footer-links">
+            <li><a href="#overview">Executive Deck</a></li>
+            <li><a href="#pca">Shape PCA Reduction</a></li>
+            <li><a href="#kmeans">K-Means Diagnostics</a></li>
+            <li><a href="#segments">Cluster Archetypes</a></li>
+            <li><a href="#strategies">Optimization Playbooks</a></li>
+            <li><a href="#explorer">Consumer Explorer</a></li>
+            <li><a href="#simulator">Tariff & ROI Simulator</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Research & Code</h4>
+          <ul class="footer-links">
+            <li><a href="https://colab.research.google.com/drive/11trSVRRWxQcnxckr8L-NT8c9MnUkzwtj?usp=sharing" target="_blank" rel="noopener">Google Colab Notebook</a></li>
+            <li><a href="electricity_weekly_wide.csv" download>Download CSV Dataset</a></li>
+            <li><a href="https://zenodo.org/records/3898436" target="_blank" rel="noopener">Monash Repository</a></li>
+            <li><a href="https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014" target="_blank" rel="noopener">UCI Electricity Dataset</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Siemens Energy Case Study | UCS321 Project 10. All analytical assets validated.</div>
+        <div style="font-family: var(--font-mono); font-size: 0.75rem;">Status: Optimal K=2 Model Active | 95.17% Variance Retained</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts: Local Self-Contained Chart.js & Data Bundle -->
+  <script src="assets/js/chart.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
