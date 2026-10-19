@@ -1,4 +1,4 @@
-# Siemens Energy Industrial Load Intelligence Platform
+# PCA Analysis Industrial Load Intelligence Platform
 
 A complete, self-contained web application analyzing 321 electricity consumer profiles over 156 weeks using PCA and K-Means segmentation.
 
